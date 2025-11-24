@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  @apply bg-gray-50 text-gray-800;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-4;
+}
+
+.pill {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm;
+}
+
+.in-badge { @apply text-green-700 bg-green-50 border border-green-100 }
+.out-badge { @apply text-red-700 bg-red-50 border border-red-100 }

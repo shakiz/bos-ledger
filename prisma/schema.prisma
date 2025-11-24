@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Default to sqlite for local development. For production (Vercel) change provider to "postgresql"
+datasource db {
+  provider = "sqlite"
+  // Prisma v4+ requires env() to have a single argument. Provide a .env file with DATABASE_URL for local development.
+  url      = env("DATABASE_URL")
+}
+
+model LedgerEntry {
+  id          String    @id @default(cuid())
+  date        DateTime
+  type        EntryType
+  // Use Prisma's Decimal type without a native SQLite modifier. Native Decimal precision
+  // modifiers (e.g. @db.Decimal(10, 2)) are not supported by the SQLite connector.
+  amount      Decimal
+  category    String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  shipmentId  String? 
+  shipment    Shipment? @relation(fields: [shipmentId], references: [id])
+}
+
+enum EntryType {
+  IN
+  OUT
+}
+
+model Shipment {
+  id         String        @id @default(cuid())
+  name       String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  entries    LedgerEntry[]
+}
