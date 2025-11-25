@@ -43,12 +43,12 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
   <div className="min-w-full">
 
     {/* HEADER */}
-    <div className="grid grid-cols-7 bg-[#F4F4F4] border rounded-t-md text-sm text-[#1D546C] px-4 py-3 items-center">
+  <div className="grid grid-cols-7 bg-slate-50 border border-slate-200 rounded-t-md text-sm text-slate-600 px-4 py-3 items-center">
       <div className="col-span-1 flex items-center">Date</div>
       <div className="col-span-1 flex items-center">Transactions</div>
       <div className="col-span-2 flex items-center">Notes</div>
-      <div className="col-span-1 flex items-center justify-end text-green-600">Money In</div>
-      <div className="col-span-1 flex items-center justify-end text-red-600">Money Out</div>
+  <div className="col-span-1 flex items-center justify-end text-emerald-600">Money In</div>
+  <div className="col-span-1 flex items-center justify-end text-rose-600">Money Out</div>
       <div className="col-span-1 flex items-center justify-end">Balance</div>
     </div>
 
@@ -70,7 +70,7 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
         return (
           <div
             key={date}
-            className="grid grid-cols-7 px-4 py-3 border-b items-center hover:bg-[#FAFCFD] cursor-pointer"
+            className="grid grid-cols-7 px-4 py-3 border-b border-slate-200 items-center hover:bg-slate-50 cursor-pointer"
             onClick={() => setOpenDate(date)}
           >
             <div className="col-span-1 flex items-center text-sm text-[#1D546C]">{date}</div>
@@ -83,15 +83,15 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
               {list[0]?.description ?? list[0]?.category ?? ""}
             </div>
 
-            <div className="col-span-1 flex items-center justify-end text-green-600">
+            <div className="col-span-1 flex items-center justify-end text-emerald-600">
               +৳{fmt(inSum)}
             </div>
 
-            <div className="col-span-1 flex items-center justify-end text-red-600">
+            <div className="col-span-1 flex items-center justify-end text-rose-600">
               -৳{fmt(outSum)}
             </div>
 
-            <div className="col-span-1 flex items-center justify-end font-bold text-[#0C2B4E]">
+            <div className="col-span-1 flex items-center justify-end font-bold text-slate-900">
               ৳{fmt(balance)}
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
           <h3 className="text-lg font-semibold mb-3">Transactions for {openDate}</h3>
           <div className="space-y-2">
             {/* header for detail modal (match EntryRow 10-col layout) */}
-            <div className="grid grid-cols-1 md:grid-cols-10 bg-[#F8FAFB] border rounded text-sm text-[#1D546C] px-3 py-2 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-10 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600 px-3 py-2 items-center">
               <div className="col-span-1">Date</div>
               <div className="col-span-1">Shipment</div>
               <div className="col-span-3">Notes</div>
@@ -118,7 +118,7 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
               <div className="col-span-1 text-center">Delete</div>
             </div>
             {(openDate ? grouped[openDate] ?? [] : []).map((entry: any) => (
-              <div key={entry.id} className="p-2 bg-white rounded">
+              <div key={entry.id} className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm">
                 <EntryRow entry={entry} onDelete={handleDelete} showDivider={false} />
               </div>
             ))}

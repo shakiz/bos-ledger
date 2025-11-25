@@ -60,15 +60,52 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6 bg-[#0C2B4E] text-[#F4F4F4] p-4 rounded-lg">
-        <h1 className="text-2xl font-semibold">Shipment Cash Flow Manager</h1>
-        <div className="flex flex-col items-end">
-          <div className="text-sm font-medium mb-1">All-Time Totals</div>
-          <SummaryCards totalIn={allSummary.totalIn} totalOut={allSummary.totalOut} finalBalance={allSummary.finalBalance} />
+  {/* Top bar: title + subtitle left, available balance right */}
+  <div className="mb-6 p-4 rounded-lg bg-indigo-600 text-white">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold">Shipment Cash Flow Manager</h1>
+            <div className="text-sm text-indigo-100">Shipments and cash flow overview</div>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-indigo-100">Available Balance</div>
+            <div className="text-2xl font-bold text-white">৳{allSummary.finalBalance.toFixed(2)}</div>
+          </div>
         </div>
       </div>
 
-      {/* Daily snapshots at the top, full width */}
+      {/* Month selector at left, separator, carry forward + monthly summary at right */}
+      <div className="mb-6">
+        <div className="card p-4">
+          <div className="flex items-center gap-6 flex-col sm:flex-row">
+            <div className="flex items-center gap-6">
+              <div>
+                <MonthSelector currentMonth={month} />
+              </div>
+              <div className="hidden sm:block h-10 border-l border-gray-200" />
+            </div>
+
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="pr-4">
+                  <div className="text-sm text-[#1D546C]">Carry Forward</div>
+                  <div className="text-xl font-bold text-[#0C2B4E]">৳{carryForward.toFixed(2)}</div>
+                </div>
+
+                <div className="flex-1">
+                  <SummaryCards
+                    totalIn={summary.totalIn}
+                    totalOut={summary.totalOut}
+                    finalBalance={summary.finalBalance}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+            {/* Daily snapshots at the top, full width */}
       <div className="card mb-6 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-[#0C2B4E]">Daily Snapshots</h3>
@@ -80,31 +117,6 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
           date: e.date instanceof Date ? e.date.toISOString() : String(e.date),
           shipment: (e as any).shipment ? { id: (e as any).shipment.id, name: (e as any).shipment.name } : null,
         }))} />
-      </div>
-
-
-      {/* Month selector and carry forward/summary in a grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="card">
-          <MonthSelector currentMonth={month} />
-        </div>
-        <div className="md:col-span-2">
-          <div className="card p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-sm text-[#1D546C]">Carry Forward</div>
-                <div className="text-2xl font-bold text-[#0C2B4E]">৳{carryForward.toFixed(2)}</div>
-              </div>
-              <div className="flex-1">
-                <SummaryCards
-                  totalIn={summary.totalIn}
-                  totalOut={summary.totalOut}
-                  finalBalance={summary.finalBalance}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Add Transaction form below the month/carry forward section */}

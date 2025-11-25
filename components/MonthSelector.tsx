@@ -16,28 +16,21 @@ export default function MonthSelector({ currentMonth }: { currentMonth?: string 
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-sm text-gray-600">Month</div>
-        <div className="text-sm text-gray-500">{dayjs(month + '-01').format('MMMM YYYY')}</div>
-      </div>
-      <div className="flex gap-2">
+      <div className="inline-flex items-center bg-white border border-slate-200 rounded-full shadow-sm px-2 py-1">
         <button
-          className="flex items-center gap-1 hover:bg-[#F4F4F4] text-[#0C2B4E] p-1 rounded-full transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-full hover:bg-slate-50 transition-colors text-slate-700"
           onClick={() => go(-1)}
           aria-label="Previous Month"
-          style={{ background: 'none', border: 'none' }}
         >
-          <MdChevronLeft size={28} color="#1A3D64" />
-          <span className="hidden md:inline text-[#1D546C]">Prev</span>
+          <MdChevronLeft size={20} />
         </button>
+        <div className="px-3 text-sm font-medium text-slate-700">{dayjs(month + '-01').format('MMMM YYYY')}</div>
         <button
-          className="flex items-center gap-1 hover:bg-[#F4F4F4] text-[#0C2B4E] p-1 rounded-full transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-full hover:bg-slate-50 transition-colors text-slate-700"
           onClick={() => go(1)}
           aria-label="Next Month"
-          style={{ background: 'none', border: 'none' }}
         >
-          <span className="hidden md:inline text-[#1D546C]">Next</span>
-          <MdChevronRight size={28} color="#1A3D64" />
+          <MdChevronRight size={20} />
         </button>
       </div>
     </div>
