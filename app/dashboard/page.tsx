@@ -7,8 +7,47 @@ import { prisma } from '@/lib/prisma'
 import { calculateMonthlySummary, getCarryForwardBalance } from '@/lib/ledger'
 import dayjs from 'dayjs'
 import { toNumber } from '@/lib/ledger'
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import LogoutButton from "@/components/LogoutButton"
+import { redirect } from "next/navigation"
 
 export default async function DashboardPage({ searchParams }: { searchParams?: { month?: string } }) {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect("/login")
+  }
+
+  // MODERATOR VIEW
+  if ((session.user as any).role === "MODERATOR") {
+    return (
+      <div>
+        <div className="mb-6 p-4 rounded-lg bg-indigo-600 text-white">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold">Shipment Cash Flow Manager</h1>
+              <div className="text-sm text-indigo-100">Moderator View</div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-sm text-indigo-100">Welcome</div>
+                <div className="text-lg font-bold text-white">{session.user?.email}</div>
+              </div>
+              <LogoutButton />
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-12 text-center text-gray-500">
+          <h2 className="text-xl font-semibold mb-2">Dashboard is Empty</h2>
+          <p>You do not have permission to view financial data.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ADMIN VIEW (Existing Logic)
   const month = searchParams?.month ?? dayjs().format('YYYY-MM')
   const start = dayjs(month + '-01').startOf('month').toDate()
   const end = dayjs(month + '-01').endOf('month').toDate()
@@ -60,16 +99,19 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
 
   return (
     <div>
-  {/* Top bar: title + subtitle left, available balance right */}
-  <div className="mb-6 p-4 rounded-lg bg-indigo-600 text-white">
+      {/* Top bar: title + subtitle left, available balance right */}
+      <div className="mb-6 p-4 rounded-lg bg-indigo-600 text-white">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold">Shipment Cash Flow Manager</h1>
             <div className="text-sm text-indigo-100">Shipments and cash flow overview</div>
           </div>
-          <div className="text-right">
-            <div className="text-sm text-indigo-100">Available Balance</div>
-            <div className="text-2xl font-bold text-white">৳{allSummary.finalBalance.toFixed(2)}</div>
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <div className="text-sm text-indigo-100">Available Balance</div>
+              <div className="text-2xl font-bold text-white">৳{allSummary.finalBalance.toFixed(2)}</div>
+            </div>
+            <LogoutButton />
           </div>
         </div>
       </div>
@@ -105,7 +147,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         </div>
       </div>
 
-            {/* Daily snapshots at the top, full width */}
+      {/* Daily snapshots at the top, full width */}
       <div className="card mb-6 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-[#0C2B4E]">Daily Snapshots</h3>

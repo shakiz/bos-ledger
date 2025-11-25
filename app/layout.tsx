@@ -1,4 +1,5 @@
 import '@/styles/globals.css'
+import AuthProvider from '@/components/AuthProvider'
 
 export const metadata = {
   title: 'BOS Ledger',
@@ -9,11 +10,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen p-6">
-          <div className="max-w-6xl mx-auto">
-            {children}
+        <AuthProvider>
+          <div className="min-h-screen p-6">
+            <div className="max-w-6xl mx-auto">
+              {children}
+            </div>
           </div>
-        </div>
+        </AuthProvider>
       </body>
     </html>
   )
