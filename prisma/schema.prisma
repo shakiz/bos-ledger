@@ -4,9 +4,11 @@ generator client {
 
 // Default to sqlite for local development. For production (Vercel) change provider to "postgresql"
 datasource db {
-  provider = "sqlite"
+  //provider = "sqlite"
   // Prisma v4+ requires env() to have a single argument. Provide a .env file with DATABASE_URL for local development.
-  url      = "file:./dev.db"
+  //url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model LedgerEntry {
