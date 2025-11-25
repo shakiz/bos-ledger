@@ -27,13 +27,21 @@ export default function DailySnapshots({ entries }: { entries: LedgerEntry[] }) 
       {/* small screens: horizontal scroll with arrows */}
       <div className="md:hidden">
         <button aria-label="prev" onClick={() => scrollBy(-240)} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow"> <MdChevronLeft /> </button>
-        <div ref={scrollRef} className="flex gap-3 py-2 overflow-x-auto px-10">
+        <div ref={scrollRef} className="flex gap-2 py-2 overflow-x-auto px-6">
           {dates.map(d => (
-            <div key={d} className="min-w-[160px] bg-[#F4F4F4] border border-[#E8EEF2] rounded-lg p-3">
-              <div className="text-xs text-[#1D546C] mb-2">{dayjs(d).format('YYYY-MM-DD')}</div>
-              <div className="text-sm text-green-600">In: <span className="font-medium text-[#1A3D64]">+{fmt(daily[d].totalIn)}</span></div>
-              <div className="text-sm text-red-600">Out: <span className="font-medium text-[#D32F2F]">-{fmt(daily[d].totalOut)}</span></div>
-              <div className="mt-3 font-bold text-[#0C2B4E]">৳{fmt(daily[d].totalIn - daily[d].totalOut)}</div>
+            <div key={d} className="min-w-[200px] bg-white border border-[#EEF2F5] rounded-xl p-2 shadow-sm">
+              <div className="text-sm text-[#536A7A] font-semibold mb-2">{dayjs(d).format('YYYY-MM-DD')}</div>
+              <div className="flex items-center justify-between text-sm mb-0.5">
+                <div className="text-green-600">In:</div>
+                <div className="text-[#1A7A3F] font-medium">+{fmt(daily[d].totalIn)}</div>
+              </div>
+              <div className="flex items-center justify-between text-sm mb-2">
+                <div className="text-red-600">Out:</div>
+                <div className="text-[#D32F2F] font-medium">-{fmt(daily[d].totalOut)}</div>
+              </div>
+              <div className="border-t pt-2 mt-1">
+                <div className="text-base font-bold text-[#0C2B4E]">৳{fmt(daily[d].totalIn - daily[d].totalOut)}</div>
+              </div>
             </div>
           ))}
         </div>
@@ -43,11 +51,19 @@ export default function DailySnapshots({ entries }: { entries: LedgerEntry[] }) 
       {/* desktop: grid 4 columns */}
       <div className="hidden md:grid md:grid-cols-4 gap-3 py-2">
         {dates.map(d => (
-          <div key={d} className="bg-[#F4F4F4] border border-[#E8EEF2] rounded-lg p-4">
-            <div className="text-xs text-[#1D546C] mb-2">{dayjs(d).format('YYYY-MM-DD')}</div>
-            <div className="text-sm text-green-600">In: <span className="font-medium text-[#1A3D64]">+{fmt(daily[d].totalIn)}</span></div>
-            <div className="text-sm text-red-600">Out: <span className="font-medium text-[#D32F2F]">-{fmt(daily[d].totalOut)}</span></div>
-            <div className="mt-3 font-bold text-[#0C2B4E]">৳{fmt(daily[d].totalIn - daily[d].totalOut)}</div>
+          <div key={d} className="bg-white border border-[#EEF2F5] rounded-xl p-2 shadow-sm">
+            <div className="text-sm text-[#536A7A] font-semibold mb-2">{dayjs(d).format('YYYY-MM-DD')}</div>
+            <div className="flex items-center justify-between text-sm mb-0.5">
+              <div className="text-green-600">In:</div>
+              <div className="text-[#1A7A3F] font-medium">+{fmt(daily[d].totalIn)}</div>
+            </div>
+            <div className="flex items-center justify-between text-sm mb-2">
+              <div className="text-red-600">Out:</div>
+              <div className="text-[#D32F2F] font-medium">-{fmt(daily[d].totalOut)}</div>
+            </div>
+            <div className="border-t pt-2 mt-1">
+              <div className="text-lg font-bold text-[#0C2B4E]">৳{fmt(daily[d].totalIn - daily[d].totalOut)}</div>
+            </div>
           </div>
         ))}
       </div>

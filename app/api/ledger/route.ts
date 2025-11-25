@@ -20,9 +20,14 @@ export async function GET(req: Request) {
 
   // fetch entries (without relational include). We intentionally do not attach full shipment objects here
   // to avoid compile-time Prisma include/type issues in environments where the client may be out of sync.
-  const entries = await prisma.ledgerEntry.findMany({ where: { date: { gte: start, lte: end } }, orderBy: { date: 'asc' } })
-  // convert Decimal to string for transport and keep shipmentId for client-side mapping
-  const safe = entries.map((e: any) => ({ ...e, amount: e.amount?.toString ? e.amount.toString() : String(e.amount), shipmentId: e.shipmentId || null }))
+  const entries = await prisma.ledgerEntry.findMany({ where: { date: { gte: start, lte: end } }, orderBy: { date: 'asc' }, include: { shipment: true } })
+  // convert Decimal to string for transport and include shipment object (id + name) if present
+  const safe = entries.map((e: any) => ({
+    ...e,
+    amount: e.amount?.toString ? e.amount.toString() : String(e.amount),
+    shipmentId: e.shipmentId || null,
+    shipment: e.shipment ? { id: e.shipment.id, name: e.shipment.name } : null
+  }))
   return NextResponse.json({ entries: safe })
 }
 
@@ -32,8 +37,12 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.format() }, { status: 400 })
 
   const { date, type, amount, category, description, shipmentId } = parsed.data
-  let created: any
-  // create without relational include; return created entry with amount serialized and shipmentId for client-side mapping
-  created = await prisma.ledgerEntry.create({ data: { date: new Date(date), type, amount: amount, category, description, shipmentId: shipmentId || undefined } })
-  return NextResponse.json({ ...created, amount: created.amount?.toString ? created.amount.toString() : String(created.amount), shipmentId: created.shipmentId || null })
+  // create and include shipment relation for client convenience
+  const created = await prisma.ledgerEntry.create({ data: { date: new Date(date), type, amount: amount, category, description, shipmentId: shipmentId || undefined }, include: { shipment: true } })
+  return NextResponse.json({
+    ...created,
+    amount: created.amount?.toString ? created.amount.toString() : String(created.amount),
+    shipmentId: created.shipmentId || null,
+    shipment: created.shipment ? { id: created.shipment.id, name: created.shipment.name } : null
+  })
 }

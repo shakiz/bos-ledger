@@ -4,6 +4,7 @@ import Modal from './Modal'
 import CreateShipmentModal from './CreateShipmentModal'
 import CreateCategoryModal from './CreateCategoryModal'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -19,6 +20,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function EditEntryModal({ open, onClose, entry }: { open: boolean; onClose: () => void; entry: any }) {
+  const router = useRouter()
   const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<FormData>({ resolver: zodResolver(schema) })
   const [shipments, setShipments] = React.useState<{ id: string; name: string }[]>([])
 
@@ -64,9 +66,9 @@ export default function EditEntryModal({ open, onClose, entry }: { open: boolean
   async function onSubmit(data: FormData) {
     try {
       await fetch(`/api/ledger/${entry.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...data, shipmentId: data.shipmentId ? data.shipmentId : null }) })
+      // close the edit modal and refresh data without full reload so parent modal can remain open
       onClose()
-      // refresh the page
-      window.location.reload()
+      router.refresh()
     } catch (err) {
       console.error(err)
       alert('Update failed')

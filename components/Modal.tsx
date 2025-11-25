@@ -6,7 +6,7 @@ export default function Modal({ children, open, onClose }: { children: React.Rea
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black opacity-30" onClick={onClose} />
-  <div className="bg-[#F4F4F4] rounded-lg shadow p-4 z-10 w-full max-w-md border border-[#1A3D64]">
+  <div className="bg-[#F4F4F4] rounded-lg shadow p-4 z-10 w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl border border-[#1A3D64]">
         <div className="flex justify-end">
           <button onClick={onClose} className="text-gray-500">Close</button>
         </div>

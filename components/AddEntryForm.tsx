@@ -29,6 +29,7 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue,
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -37,6 +38,7 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
       amount: 0,
       category: "",
       description: "",
+      shipmentId: "",
     },
   })
 
@@ -87,6 +89,15 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
+      // reset the form back to defaults
+      reset({
+        date: defaultDate ?? new Date().toISOString().slice(0, 10),
+        type: "IN",
+        amount: 0,
+        category: "",
+        description: "",
+        shipmentId: "",
+      })
       router.refresh()
     } catch (err) {
       console.error(err)
@@ -97,8 +108,8 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <div className="bg-white rounded-xl p-4 border border-[#E8EEF2]">
 
-        {/* DATE + AMOUNT */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* responsive controls: stack on small screens, 2-per-row on md, 3-per-row on lg */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
 
           {/* Date */}
           <div>
@@ -124,11 +135,6 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
               />
             </div>
           </div>
-
-        </div>
-
-        {/* TYPE + SHIPMENT */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
           {/* Type */}
           <div>
@@ -169,11 +175,6 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
               </button>
             </div>
           </div>
-
-        </div>
-
-        {/* CATEGORY + DESCRIPTION */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
           {/* Category */}
           <div>

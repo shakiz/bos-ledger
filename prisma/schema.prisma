@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "sqlite"
   // Prisma v4+ requires env() to have a single argument. Provide a .env file with DATABASE_URL for local development.
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 model LedgerEntry {

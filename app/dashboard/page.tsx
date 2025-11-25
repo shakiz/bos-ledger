@@ -15,7 +15,8 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
 
   let entries = []
   try {
-    entries = await prisma.ledgerEntry.findMany({ where: { date: { gte: start, lte: end } }, orderBy: { date: 'asc' } })
+    // include shipment relation so client can display shipment.name
+    entries = await prisma.ledgerEntry.findMany({ where: { date: { gte: start, lte: end } }, orderBy: { date: 'asc' }, include: { shipment: true } })
   } catch (err) {
     // Fallback when Prisma client is outdated and doesn't include the relation
     // Try again without include so the page can still render. Prompt user to run `npx prisma generate`.
@@ -47,7 +48,14 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
     const amt = toNumber(e.amount)
     if (e.type === 'IN') running += amt
     else running -= amt
-    return { ...e, runningBalance: running }
+    // serialize amount and shipment to plain JS types to avoid Decimal/Date issues when passing to client
+    return {
+      ...e,
+      amount: e.amount && typeof e.amount === 'object' && e.amount.toString ? e.amount.toString() : String(e.amount),
+      date: e.date instanceof Date ? e.date.toISOString() : String(e.date),
+      shipment: e.shipment ? { id: e.shipment.id, name: e.shipment.name } : null,
+      runningBalance: running,
+    }
   })
 
   return (
@@ -66,7 +74,12 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
           <h3 className="text-lg font-semibold text-[#0C2B4E]">Daily Snapshots</h3>
           <div className="text-sm text-gray-500">End of day balances</div>
         </div>
-        <DailySnapshots entries={entries} />
+        <DailySnapshots entries={(entries as any[]).map(e => ({
+          ...e,
+          amount: e.amount && typeof e.amount === 'object' && e.amount.toString ? e.amount.toString() : String(e.amount),
+          date: e.date instanceof Date ? e.date.toISOString() : String(e.date),
+          shipment: (e as any).shipment ? { id: (e as any).shipment.id, name: (e as any).shipment.name } : null,
+        }))} />
       </div>
 
 

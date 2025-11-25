@@ -24,8 +24,13 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     dataToUpdate.shipmentId = parsed.data.shipmentId === null ? null : parsed.data.shipmentId
   }
   // update without relational include. Return updated entry with serialized amount and shipmentId.
-  const updated = await prisma.ledgerEntry.update({ where: { id }, data: dataToUpdate })
-  return NextResponse.json({ ...updated, amount: updated.amount?.toString ? updated.amount.toString() : String(updated.amount), shipmentId: updated.shipmentId || null })
+  const updated = await prisma.ledgerEntry.update({ where: { id }, data: dataToUpdate, include: { shipment: true } })
+  return NextResponse.json({
+    ...updated,
+    amount: updated.amount?.toString ? updated.amount.toString() : String(updated.amount),
+    shipmentId: updated.shipmentId || null,
+    shipment: updated.shipment ? { id: updated.shipment.id, name: updated.shipment.name } : null
+  })
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
