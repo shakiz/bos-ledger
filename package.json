@@ -12,7 +12,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "lint": "next lint",
-    "vercel-build": "npx prisma generate && next build"
+    "vercel-build": "npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts && next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^2.9.10",
