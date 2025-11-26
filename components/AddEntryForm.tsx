@@ -55,13 +55,13 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
   React.useEffect(() => {
     let active = true
     fetch(`/api/ledger?month=${new Date().toISOString().slice(0, 7)}`)
-        .then(r => r.json()).then(data => {
-          if (!active) return
-          const entries = (data?.entries ?? []) as any[]
-          const cats = Array.from(new Set(entries.map((e: any) => (e.category ?? '').toString()).filter(Boolean))) as string[]
-          setCategories(cats)
+      .then(r => r.json()).then(data => {
+        if (!active) return
+        const entries = (data?.entries ?? []) as any[]
+        const cats = Array.from(new Set(entries.map((e: any) => (e.category ?? '').toString()).filter(Boolean))) as string[]
+        setCategories(cats)
       })
-      .catch(() => {})
+      .catch(() => { })
     return () => {
       active = false
     }
@@ -76,7 +76,7 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
         if (!active) return
         setShipments(data.shipments ?? [])
       })
-      .catch(() => {})
+      .catch(() => { })
     return () => {
       active = false
     }
@@ -221,7 +221,7 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
           disabled={isSubmitting}
           className="w-full py-3 rounded-lg bg-indigo-600 text-white text-lg font-medium hover:bg-indigo-700 transition shadow-sm"
         >
-          Add Entry
+          Add Transaction
         </button>
 
       </div>
