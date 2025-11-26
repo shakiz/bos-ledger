@@ -100,16 +100,19 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
   return (
     <div>
       {/* Top bar: title + subtitle left, available balance right */}
-      <div className="mb-6 p-4 rounded-lg bg-indigo-600 text-white">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold">Shipment Cash Flow Manager</h1>
-            <div className="text-sm text-indigo-100">Shipments and cash flow overview</div>
+      <div className="mb-6 p-4 md:p-6 rounded-lg bg-indigo-600 text-white">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Title Section */}
+          <div className="flex-1">
+            <h1 className="text-xl md:text-2xl font-semibold">Shipment Cash Flow Manager</h1>
+            <div className="text-xs md:text-sm text-indigo-100 mt-1">Shipments and cash flow overview</div>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="text-right">
-              <div className="text-sm text-indigo-100">Available Balance</div>
-              <div className="text-2xl font-bold text-white">৳{allSummary.finalBalance.toFixed(2)}</div>
+
+          {/* Balance and Logout Section */}
+          <div className="flex items-center justify-between md:justify-end gap-4 md:gap-6">
+            <div className="text-left md:text-right">
+              <div className="text-xs md:text-sm text-indigo-100">Available Balance</div>
+              <div className="text-xl md:text-2xl font-bold text-white">৳{allSummary.finalBalance.toFixed(2)}</div>
             </div>
             <LogoutButton />
           </div>
