@@ -1,9 +1,10 @@
 "use client"
 
 import React from 'react'
-import { MdBarChart } from 'react-icons/md'
+import { MdBarChart, MdArrowForward } from 'react-icons/md'
 import Modal from './Modal'
 import dayjs from 'dayjs'
+import Link from 'next/link'
 
 interface ShipmentData {
     id: string
@@ -14,7 +15,13 @@ interface ShipmentData {
     transactions?: any[]
 }
 
-export default function ShipmentPerformance({ shipments }: { shipments: ShipmentData[] }) {
+interface ShipmentPerformanceProps {
+    shipments: ShipmentData[]
+    limit?: number
+    showSeeAll?: boolean
+}
+
+export default function ShipmentPerformance({ shipments, limit, showSeeAll = false }: ShipmentPerformanceProps) {
     const [selectedShipment, setSelectedShipment] = React.useState<ShipmentData | null>(null)
 
     const fmt = (n: number) => {
@@ -37,6 +44,10 @@ export default function ShipmentPerformance({ shipments }: { shipments: Shipment
 
     const dates = Object.keys(groupedTransactions).sort()
 
+    // Apply limit if specified
+    const displayedShipments = limit ? shipments.slice(0, limit) : shipments
+    const hasMore = limit && shipments.length > limit
+
     return (
         <div>
             {/* Header */}
@@ -45,17 +56,27 @@ export default function ShipmentPerformance({ shipments }: { shipments: Shipment
                     <MdBarChart className="text-indigo-600" size={24} />
                     <h2 className="text-lg md:text-xl font-semibold text-slate-800">Shipment Performance</h2>
                 </div>
-                <div className="text-xs md:text-sm text-slate-500">Profitability Analysis</div>
+
+                {/* See All Button - Always visible when showSeeAll is true */}
+                {showSeeAll && (
+                    <Link
+                        href="/shipments"
+                        className="group inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                    >
+                        <span>See All</span>
+                        <MdArrowForward className="group-hover:translate-x-1 transition-transform" size={16} />
+                    </Link>
+                )}
             </div>
 
             {/* Shipment Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {shipments.length === 0 ? (
+                {displayedShipments.length === 0 ? (
                     <div className="col-span-full text-center py-8 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
                         No shipment data available
                     </div>
                 ) : (
-                    shipments.map((shipment) => {
+                    displayedShipments.map((shipment) => {
                         const isProfit = shipment.net >= 0
                         const profitLabel = isProfit ? 'NET PROFIT' : 'NET LOSS'
                         const profitColor = isProfit ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'

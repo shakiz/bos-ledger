@@ -191,7 +191,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
 
       {/* Shipment Performance Section */}
       <div className="mb-6">
-        <ShipmentPerformance shipments={shipmentPerformance} />
+        <ShipmentPerformance shipments={shipmentPerformance} limit={3} showSeeAll={true} />
       </div>
 
       {/* Daily snapshots at the top, full width */}
@@ -201,7 +201,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
           amount: e.amount && typeof e.amount === 'object' && e.amount.toString ? e.amount.toString() : String(e.amount),
           date: e.date instanceof Date ? e.date.toISOString() : String(e.date),
           shipment: (e as any).shipment ? { id: (e as any).shipment.id, name: (e as any).shipment.name } : null,
-        }))} />
+        }))} limit={5} showSeeAll={true} />
       </div>
 
       {/* Add Transaction form below the month/carry forward section */}
