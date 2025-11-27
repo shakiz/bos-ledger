@@ -4,17 +4,27 @@ import React from 'react'
 import { LedgerEntry } from '@prisma/client'
 import { calculateDailyTotals } from '@/lib/ledger'
 import dayjs from 'dayjs'
-import { MdChevronLeft, MdChevronRight, MdDelete, MdCalendarToday } from 'react-icons/md'
+import { MdChevronLeft, MdChevronRight, MdDelete, MdCalendarToday, MdArrowForward } from 'react-icons/md'
 import { useRouter } from 'next/navigation'
 import ConfirmDialog from './ConfirmDialog'
 import Modal from './Modal'
 import EntryRow from './EntryRow'
+import Link from 'next/link'
 
+interface DailySnapshotsProps {
+  entries: LedgerEntry[]
+  limit?: number
+  showSeeAll?: boolean
+}
 
-export default function DailySnapshots({ entries }: { entries: LedgerEntry[] }) {
+export default function DailySnapshots({ entries, limit, showSeeAll = false }: DailySnapshotsProps) {
   const router = useRouter()
   const daily = calculateDailyTotals(entries)
-  const dates = Object.keys(daily).sort()
+  const allDates = Object.keys(daily).sort().reverse() // Most recent first
+
+  // Apply limit if specified
+  const dates = limit ? allDates.slice(0, limit) : allDates
+
   const scrollRef = React.useRef<HTMLDivElement | null>(null)
   const [deleteDate, setDeleteDate] = React.useState<string | null>(null)
   const [isDeleting, setIsDeleting] = React.useState(false)
@@ -82,7 +92,17 @@ export default function DailySnapshots({ entries }: { entries: LedgerEntry[] }) 
           <MdCalendarToday className="text-indigo-600" size={22} />
           <h3 className="text-lg font-semibold text-[#0C2B4E]">Daily Snapshots</h3>
         </div>
-        <div className="text-sm text-gray-500">End of day balances</div>
+
+        {/* See All Button - Always visible when showSeeAll is true */}
+        {showSeeAll && (
+          <Link
+            href="/daily-snapshots"
+            className="group inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+          >
+            <span>See All</span>
+            <MdArrowForward className="group-hover:translate-x-1 transition-transform" size={16} />
+          </Link>
+        )}
       </div>
 
       <div className="relative">
