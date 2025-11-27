@@ -33,9 +33,9 @@ export function groupByDate(entries: LedgerEntry[]) {
 }
 
 export function calculateDailyTotals(entries: LedgerEntry[]) {
-  // returns a map date -> { totalIn, totalOut, balance }
+  // returns a map date -> { totalIn, totalOut, balance, count }
   const grouped = groupByDate(entries)
-  const result: Record<string, { totalIn: number; totalOut: number; balance: number }> = {}
+  const result: Record<string, { totalIn: number; totalOut: number; balance: number; count: number }> = {}
   for (const [date, list] of Object.entries(grouped)) {
     let inSum = 0
     let outSum = 0
@@ -44,7 +44,7 @@ export function calculateDailyTotals(entries: LedgerEntry[]) {
       if (e.type === 'IN') inSum += amt
       else outSum += amt
     }
-    result[date] = { totalIn: inSum, totalOut: outSum, balance: inSum - outSum }
+    result[date] = { totalIn: inSum, totalOut: outSum, balance: inSum - outSum, count: list.length }
   }
   return result
 }

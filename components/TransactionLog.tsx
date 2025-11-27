@@ -3,11 +3,12 @@ import React from 'react'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import EntryRow from './EntryRow'
-import Modal from './Modal'
+import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
 
 export default function TransactionLog({ entries }: { entries: any[] }) {
   const router = useRouter()
-  const [openDate, setOpenDate] = React.useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = React.useState(dayjs().format('YYYY-MM-DD'))
+  const [isLoading, setIsLoading] = React.useState(false)
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this entry?')) return
@@ -22,160 +23,136 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
 
   if (!entries || entries.length === 0) return <div className="text-sm text-gray-500">No transactions yet.</div>
 
-  // group entries by date
-  const grouped: Record<string, any[]> = {}
-  for (const e of entries) {
-    const d = dayjs(e.date).format('YYYY-MM-DD')
-    grouped[d] = grouped[d] ?? []
-    grouped[d].push(e)
-  }
-
-  const dates = Object.keys(grouped).sort()
+  // Filter for selected date's transactions
+  const selectedEntries = entries.filter(e => {
+    const entryDate = dayjs(e.date).format('YYYY-MM-DD')
+    return entryDate === selectedDate
+  })
 
   const fmt = (n: number) => {
     if (Number.isInteger(n)) return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0 }).format(n)
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
   }
 
+  // Calculate selected date's totals
+  let totalIn = 0
+  let totalOut = 0
+  selectedEntries.forEach(entry => {
+    const amt = typeof entry.amount === "string" ? parseFloat(entry.amount) : Number(entry.amount)
+    if (entry.type === "IN") totalIn += amt
+    else totalOut += amt
+  })
+
+  function changeDate(delta: number) {
+    setIsLoading(true)
+    const newDate = dayjs(selectedDate).add(delta, 'day').format('YYYY-MM-DD')
+    setSelectedDate(newDate)
+    setTimeout(() => setIsLoading(false), 300)
+  }
+
   return (
-    <div>
-      {/* DESKTOP VIEW - Table */}
-      <div className="hidden md:block overflow-x-auto">
-        <div className="min-w-full">
-          {/* HEADER */}
-          <div className="grid grid-cols-7 bg-slate-50 border border-slate-200 rounded-t-md text-sm text-slate-600 px-4 py-3 items-center">
-            <div className="col-span-1 flex items-center">Date</div>
-            <div className="col-span-1 flex items-center">Transactions</div>
-            <div className="col-span-2 flex items-center">Notes</div>
-            <div className="col-span-1 flex items-center justify-end text-emerald-600">Money In</div>
-            <div className="col-span-1 flex items-center justify-end text-rose-600">Money Out</div>
-            <div className="col-span-1 flex items-center justify-end">Balance</div>
+    <div className="space-y-4">
+      {/* Header with Date Navigation */}
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 md:p-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          {/* Title and Summary */}
+          <div className="flex-1">
+            <h3 className="text-base md:text-lg font-semibold text-slate-800 mb-2">
+              Detailed Transaction Log
+            </h3>
+            <div className="flex flex-wrap gap-3 text-xs md:text-sm">
+              <span className="text-emerald-600 font-medium">In: +৳{fmt(totalIn)}</span>
+              <span className="text-rose-600 font-medium">Out: -৳{fmt(totalOut)}</span>
+              <span className="text-slate-700 font-semibold">Balance: ৳{fmt(totalIn - totalOut)}</span>
+              <span className="text-slate-500">({selectedEntries.length} transaction{selectedEntries.length !== 1 ? 's' : ''})</span>
+            </div>
           </div>
 
-          {/* BODY */}
-          <div>
-            {dates.map(date => {
-              const list = grouped[date]
-              let inSum = 0
-              let outSum = 0
+          {/* Date Navigation - Compact */}
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
+            <button
+              onClick={() => changeDate(-1)}
+              disabled={isLoading}
+              className="p-1.5 rounded hover:bg-slate-100 text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Previous day"
+            >
+              <MdChevronLeft size={20} />
+            </button>
 
-              list.forEach(it => {
-                const amt = typeof it.amount === "string" ? parseFloat(it.amount) : Number(it.amount)
-                if (it.type === "IN") inSum += amt
-                else outSum += amt
-              })
+            <div className="flex flex-col items-center">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => {
+                  setIsLoading(true)
+                  setSelectedDate(e.target.value)
+                  setTimeout(() => setIsLoading(false), 300)
+                }}
+                className="text-xs md:text-sm font-medium text-slate-800 border border-slate-200 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <div className="text-[10px] md:text-xs text-slate-500 mt-0.5 hidden md:block">
+                {dayjs(selectedDate).format('ddd, MMM D')}
+              </div>
+            </div>
 
-              const balance = inSum - outSum
-
-              return (
-                <div
-                  key={date}
-                  className="grid grid-cols-7 px-4 py-3 border-b border-slate-200 items-center hover:bg-slate-50 cursor-pointer"
-                  onClick={() => setOpenDate(date)}
-                >
-                  <div className="col-span-1 flex items-center text-sm text-[#1D546C]">{date}</div>
-                  <div className="col-span-1 flex items-center text-sm">{list.length} items</div>
-                  <div className="col-span-2 flex items-center text-sm text-[#0C2B4E]">
-                    {list[0]?.description ?? list[0]?.category ?? ""}
-                  </div>
-                  <div className="col-span-1 flex items-center justify-end text-emerald-600">
-                    +৳{fmt(inSum)}
-                  </div>
-                  <div className="col-span-1 flex items-center justify-end text-rose-600">
-                    -৳{fmt(outSum)}
-                  </div>
-                  <div className="col-span-1 flex items-center justify-end font-bold text-slate-900">
-                    ৳{fmt(balance)}
-                  </div>
-                </div>
-              )
-            })}
+            <button
+              onClick={() => changeDate(1)}
+              disabled={isLoading}
+              className="p-1.5 rounded hover:bg-slate-100 text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Next day"
+            >
+              <MdChevronRight size={20} />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* MOBILE VIEW - Cards */}
-      <div className="md:hidden space-y-3">
-        {dates.map(date => {
-          const list = grouped[date]
-          let inSum = 0
-          let outSum = 0
-
-          list.forEach(it => {
-            const amt = typeof it.amount === "string" ? parseFloat(it.amount) : Number(it.amount)
-            if (it.type === "IN") inSum += amt
-            else outSum += amt
-          })
-
-          const balance = inSum - outSum
-
-          return (
-            <div
-              key={date}
-              className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm active:shadow-md transition-shadow cursor-pointer"
-              onClick={() => setOpenDate(date)}
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <div className="text-sm font-medium text-[#1D546C]">{date}</div>
-                  <div className="text-xs text-gray-500 mt-1">{list.length} transaction{list.length > 1 ? 's' : ''}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-bold text-slate-900">৳{fmt(balance)}</div>
-                  <div className="text-xs text-gray-500">Balance</div>
-                </div>
-              </div>
-
-              <div className="text-sm text-[#0C2B4E] mb-3 truncate">
-                {list[0]?.description ?? list[0]?.category ?? "No description"}
-              </div>
-
-              <div className="flex justify-between text-sm border-t border-slate-100 pt-3">
-                <div className="flex items-center gap-1">
-                  <span className="text-emerald-600 font-medium">+৳{fmt(inSum)}</span>
-                  <span className="text-xs text-gray-400">In</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-rose-600 font-medium">-৳{fmt(outSum)}</span>
-                  <span className="text-xs text-gray-400">Out</span>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      <Modal open={!!openDate} onClose={() => setOpenDate(null)}>
+      {isLoading ? (
+        <div className="text-center py-8 text-slate-500">
+          <div className="animate-pulse">Loading transactions...</div>
+        </div>
+      ) : selectedEntries.length === 0 ? (
+        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+          No transactions for {dayjs(selectedDate).format('MMMM D, YYYY')}
+        </div>
+      ) : (
         <div>
-          <h3 className="text-lg font-semibold mb-4">Transactions for {openDate}</h3>
+          {/* DESKTOP VIEW - Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <div className="min-w-full">
+              {/* HEADER */}
+              <div className="grid grid-cols-10 bg-slate-50 border border-slate-200 rounded-t-md text-sm text-slate-600 px-4 py-3 items-center">
+                <div className="col-span-1 flex items-center">Date</div>
+                <div className="col-span-1 flex items-center">Shipment</div>
+                <div className="col-span-3 flex items-center">Notes</div>
+                <div className="col-span-1 flex items-center justify-end text-emerald-600">Money In</div>
+                <div className="col-span-1 flex items-center justify-end text-rose-600">Money Out</div>
+                <div className="col-span-1 flex items-center justify-end">Balance</div>
+                <div className="col-span-1 flex items-center justify-center">Edit</div>
+                <div className="col-span-1 flex items-center justify-center">Delete</div>
+              </div>
 
-          {/* DESKTOP - Table Header */}
-          <div className="hidden md:block">
-            <div className="grid grid-cols-10 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600 px-3 py-2 items-center mb-2">
-              <div className="col-span-1">Date</div>
-              <div className="col-span-1">Shipment</div>
-              <div className="col-span-3">Notes</div>
-              <div className="col-span-1 text-right text-green-600">Money In</div>
-              <div className="col-span-1 text-right text-red-600">Money Out</div>
-              <div className="col-span-1 text-right">Balance</div>
-              <div className="col-span-1 text-center">Edit</div>
-              <div className="col-span-1 text-center">Delete</div>
+              {/* BODY */}
+              <div>
+                {selectedEntries.map((entry: any) => (
+                  <div key={entry.id} className="border-b border-slate-200 last:border-b-0">
+                    <EntryRow entry={entry} onDelete={handleDelete} showDivider={false} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Transaction List */}
-          <div className="space-y-2">
-            {(openDate ? grouped[openDate] ?? [] : []).map((entry: any) => (
-              <div key={entry.id} className="p-2 md:p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
+          {/* MOBILE VIEW - Cards */}
+          <div className="md:hidden space-y-3">
+            {selectedEntries.map((entry: any) => (
+              <div key={entry.id} className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
                 <EntryRow entry={entry} onDelete={handleDelete} showDivider={false} />
               </div>
             ))}
-            {openDate && grouped[openDate] && grouped[openDate].length === 0 && (
-              <div className="text-sm text-gray-500 text-center py-4">No transactions for this date.</div>
-            )}
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   )
 }
