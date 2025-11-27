@@ -3,12 +3,15 @@ import React from 'react'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import EntryRow from './EntryRow'
-import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
+import { MdChevronLeft, MdChevronRight, MdAdd } from 'react-icons/md'
+import Modal from './Modal'
+import AddEntryForm from './AddEntryForm'
 
 export default function TransactionLog({ entries }: { entries: any[] }) {
   const router = useRouter()
   const [selectedDate, setSelectedDate] = React.useState(dayjs().format('YYYY-MM-DD'))
   const [isLoading, setIsLoading] = React.useState(false)
+  const [showAddModal, setShowAddModal] = React.useState(false)
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this entry?')) return
@@ -52,7 +55,20 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
 
   return (
     <div className="space-y-4">
-      {/* Header with Date Navigation */}
+      {/* Header with Title and Add Button */}
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-base md:text-lg font-semibold text-slate-800">Detailed Transaction Log</h3>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="group inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+        >
+          <MdAdd size={18} />
+          <span className="hidden sm:inline">Add Transaction</span>
+          <span className="sm:hidden">Add</span>
+        </button>
+      </div>
+
+      {/* Date Navigation and Summary */}
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 md:p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Title and Summary */}
@@ -150,6 +166,14 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
           </div>
         </div>
       )}
+
+      {/* Add Transaction Modal */}
+      <Modal open={showAddModal} onClose={() => setShowAddModal(false)}>
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Add Transaction</h3>
+          <AddEntryForm onSuccess={() => setShowAddModal(false)} />
+        </div>
+      </Modal>
     </div>
   )
 }

@@ -206,16 +206,9 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         }))} limit={5} showSeeAll={true} />
       </div>
 
-      {/* Add Transaction form below the month/carry forward section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium mb-2">Add Transaction</h3>
-        <AddEntryForm />
-      </div>
-
       {/* Detailed transaction log below the summary */}
       <div className="mt-6">
         <div className="card">
-          <h3 className="text-lg font-semibold mb-4">Detailed Transaction Log</h3>
           <TransactionLog entries={entriesWithRunning} />
         </div>
       </div>

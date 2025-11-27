@@ -97,7 +97,7 @@ export default function DailySnapshots({ entries, limit, showSeeAll = false }: D
         {showSeeAll && (
           <Link
             href="/daily-snapshots"
-            className="group inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+            className="group inline-flex items-center gap-1.5 px-4 py-2 bg-white border-2 border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200"
           >
             <span>See All</span>
             <MdArrowForward className="group-hover:translate-x-1 transition-transform" size={16} />
