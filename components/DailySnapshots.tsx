@@ -29,6 +29,7 @@ export default function DailySnapshots({ entries, limit, showSeeAll = false }: D
   const [deleteDate, setDeleteDate] = React.useState<string | null>(null)
   const [isDeleting, setIsDeleting] = React.useState(false)
   const [openDate, setOpenDate] = React.useState<string | null>(null)
+  const [isNavigating, setIsNavigating] = React.useState(false)
 
   function scrollBy(amount: number) {
     if (!scrollRef.current) return
@@ -84,6 +85,12 @@ export default function DailySnapshots({ entries, limit, showSeeAll = false }: D
     return entryDate === openDate
   }) : []
 
+  const handleSeeAllClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsNavigating(true)
+    router.push('/daily-snapshots')
+  }
+
   return (
     <div>
       {/* Header */}
@@ -95,13 +102,14 @@ export default function DailySnapshots({ entries, limit, showSeeAll = false }: D
 
         {/* See All Button - Always visible when showSeeAll is true */}
         {showSeeAll && (
-          <Link
-            href="/daily-snapshots"
-            className="group inline-flex items-center gap-1.5 px-4 py-2 bg-white border-2 border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200"
+          <button
+            onClick={handleSeeAllClick}
+            disabled={isNavigating}
+            className="group inline-flex items-center gap-1.5 px-4 py-2 bg-white border-2 border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>See All</span>
-            <MdArrowForward className="group-hover:translate-x-1 transition-transform" size={16} />
-          </Link>
+            <span>{isNavigating ? 'Loading...' : 'See All'}</span>
+            {!isNavigating && <MdArrowForward className="group-hover:translate-x-1 transition-transform" size={16} />}
+          </button>
         )}
       </div>
 
