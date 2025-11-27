@@ -3,6 +3,7 @@ import SummaryCards from '@/components/SummaryCards'
 import AddEntryForm from '@/components/AddEntryForm'
 import TransactionLog from '@/components/TransactionLog'
 import DailySnapshots from '@/components/DailySnapshots'
+import ShipmentPerformance from '@/components/ShipmentPerformance'
 import { prisma } from '@/lib/prisma'
 import { calculateMonthlySummary, getCarryForwardBalance } from '@/lib/ledger'
 import dayjs from 'dayjs'
@@ -97,6 +98,45 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
     }
   })
 
+  // Calculate shipment-wise performance
+  const shipmentMap = new Map<string, { id: string; name: string; invested: number; collected: number; transactions: any[] }>()
+
+  for (const entry of entries as any[]) {
+    if (!entry.shipment) continue
+
+    const shipmentId = entry.shipment.id
+    if (!shipmentMap.has(shipmentId)) {
+      shipmentMap.set(shipmentId, {
+        id: shipmentId,
+        name: entry.shipment.name,
+        invested: 0,
+        collected: 0,
+        transactions: []
+      })
+    }
+
+    const shipmentData = shipmentMap.get(shipmentId)!
+    const amt = toNumber(entry.amount)
+
+    if (entry.type === 'OUT') {
+      shipmentData.invested += amt
+    } else {
+      shipmentData.collected += amt
+    }
+
+    // Add transaction to shipment's transaction list
+    shipmentData.transactions.push({
+      ...entry,
+      amount: entry.amount && typeof entry.amount === 'object' && entry.amount.toString ? entry.amount.toString() : String(entry.amount),
+      date: entry.date instanceof Date ? entry.date.toISOString() : String(entry.date),
+    })
+  }
+
+  const shipmentPerformance = Array.from(shipmentMap.values()).map(s => ({
+    ...s,
+    net: s.collected - s.invested
+  }))
+
   return (
     <div>
       {/* Top bar: title + subtitle left, available balance right */}
@@ -132,11 +172,10 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
 
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="pr-4">
-                  <div className="text-sm text-[#1D546C]">Carry Forward</div>
-                  <div className="text-xl font-bold text-[#0C2B4E]">৳{carryForward.toFixed(2)}</div>
+                <div className="text-sm text-gray-600">
+                  <div className="font-medium">Carry Forward</div>
+                  <div className="text-lg font-bold text-[#1D546C]">৳{carryForward.toFixed(2)}</div>
                 </div>
-
                 <div className="flex-1">
                   <SummaryCards
                     totalIn={summary.totalIn}
@@ -150,12 +189,13 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         </div>
       </div>
 
+      {/* Shipment Performance Section */}
+      <div className="mb-6">
+        <ShipmentPerformance shipments={shipmentPerformance} />
+      </div>
+
       {/* Daily snapshots at the top, full width */}
-      <div className="card mb-6 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-[#0C2B4E]">Daily Snapshots</h3>
-          <div className="text-sm text-gray-500">End of day balances</div>
-        </div>
+      <div className="mb-6">
         <DailySnapshots entries={(entries as any[]).map(e => ({
           ...e,
           amount: e.amount && typeof e.amount === 'object' && e.amount.toString ? e.amount.toString() : String(e.amount),
@@ -165,7 +205,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       </div>
 
       {/* Add Transaction form below the month/carry forward section */}
-      <div className="card mb-6">
+      <div className="mb-6">
         <h3 className="text-sm font-medium mb-2">Add Transaction</h3>
         <AddEntryForm />
       </div>

@@ -57,9 +57,6 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Title and Summary */}
           <div className="flex-1">
-            <h3 className="text-base md:text-lg font-semibold text-slate-800 mb-2">
-              Detailed Transaction Log
-            </h3>
             <div className="flex flex-wrap gap-3 text-xs md:text-sm">
               <span className="text-emerald-600 font-medium">In: +৳{fmt(totalIn)}</span>
               <span className="text-rose-600 font-medium">Out: -৳{fmt(totalOut)}</span>
