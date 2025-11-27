@@ -12,6 +12,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import LogoutButton from "@/components/LogoutButton"
 import { redirect } from "next/navigation"
+import Link from 'next/link'
 
 export default async function DashboardPage({ searchParams }: { searchParams?: { month?: string } }) {
   const session = await getServerSession(authOptions)
@@ -165,10 +166,16 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       <div className="mb-6">
         <div className="card p-4">
           <div className="flex items-center gap-6 flex-col sm:flex-row">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <div>
                 <MonthSelector currentMonth={month} />
               </div>
+              <Link
+                href={`/transactions?month=${month}`}
+                className="group inline-flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-slate-300 text-slate-700 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+              >
+                <span>View All</span>
+              </Link>
               <div className="hidden sm:block h-10 border-l border-gray-200" />
             </div>
 
