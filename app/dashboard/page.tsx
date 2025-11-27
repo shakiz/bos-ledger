@@ -4,6 +4,7 @@ import AddEntryForm from '@/components/AddEntryForm'
 import TransactionLog from '@/components/TransactionLog'
 import DailySnapshots from '@/components/DailySnapshots'
 import ShipmentPerformance from '@/components/ShipmentPerformance'
+import ViewAllButton from '@/components/ViewAllButton'
 import { prisma } from '@/lib/prisma'
 import { calculateMonthlySummary, getCarryForwardBalance } from '@/lib/ledger'
 import dayjs from 'dayjs'
@@ -12,7 +13,6 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import LogoutButton from "@/components/LogoutButton"
 import { redirect } from "next/navigation"
-import Link from 'next/link'
 
 export default async function DashboardPage({ searchParams }: { searchParams?: { month?: string } }) {
   const session = await getServerSession(authOptions)
@@ -147,8 +147,8 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Title Section */}
           <div className="flex-1">
-            <h1 className="text-xl md:text-2xl font-semibold">Shipment Cash Flow Manager</h1>
-            <div className="text-xs md:text-sm text-indigo-100 mt-1">Shipments and cash flow overview</div>
+            <h1 className="text-xl md:text-2xl font-semibold">Shipment Cash Flow</h1>
+            <div className="text-xs md:text-sm text-indigo-100 mt-1">Financial Overview</div>
           </div>
 
           {/* Balance and Logout Section */}
@@ -170,12 +170,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
               <div>
                 <MonthSelector currentMonth={month} />
               </div>
-              <Link
-                href={`/transactions?month=${month}`}
-                className="group inline-flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-slate-300 text-slate-700 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 whitespace-nowrap"
-              >
-                <span>View All</span>
-              </Link>
+              <ViewAllButton month={month} />
               <div className="hidden sm:block h-10 border-l border-gray-200" />
             </div>
 
