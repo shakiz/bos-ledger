@@ -138,59 +138,108 @@ export default function ShipmentPerformance({ shipments, limit, showSeeAll = fal
                             <span className={`font-semibold ${(selectedShipment?.net || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 Net: {(selectedShipment?.net || 0) >= 0 ? '+' : ''}৳{fmt(selectedShipment?.net || 0)}
                             </span>
+                            <span className="text-slate-500">({selectedShipment?.transactions?.length || 0} transaction{(selectedShipment?.transactions?.length || 0) !== 1 ? 's' : ''})</span>
                         </div>
                     </div>
 
-                    {/* Transactions Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto">
-                        {dates.length === 0 ? (
-                            <div className="col-span-full text-center py-8 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+                    {/* Transactions Table */}
+                    <div className="max-h-[60vh] overflow-y-auto">
+                        {!selectedShipment?.transactions || selectedShipment.transactions.length === 0 ? (
+                            <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
                                 No transactions for this shipment
                             </div>
                         ) : (
-                            dates.map(date => {
-                                const dayTransactions = groupedTransactions[date]
-                                let dayIn = 0
-                                let dayOut = 0
+                            <>
+                                {/* Desktop Table View */}
+                                <div className="hidden md:block">
+                                    <table className="w-full border-collapse">
+                                        <thead className="sticky top-0 bg-slate-50 border-b-2 border-slate-200">
+                                            <tr>
+                                                <th className="text-left text-xs font-semibold text-slate-600 px-3 py-3">Date</th>
+                                                <th className="text-left text-xs font-semibold text-slate-600 px-3 py-3">Type</th>
+                                                <th className="text-left text-xs font-semibold text-slate-600 px-3 py-3">Category</th>
+                                                <th className="text-left text-xs font-semibold text-slate-600 px-3 py-3">Description</th>
+                                                <th className="text-right text-xs font-semibold text-slate-600 px-3 py-3">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {selectedShipment.transactions.map((tx: any, idx: number) => {
+                                                const amt = typeof tx.amount === 'string' ? parseFloat(tx.amount) : Number(tx.amount)
+                                                const isIn = tx.type === 'IN'
 
-                                dayTransactions.forEach(tx => {
-                                    const amt = typeof tx.amount === 'string' ? parseFloat(tx.amount) : Number(tx.amount)
-                                    if (tx.type === 'IN') dayIn += amt
-                                    else dayOut += amt
-                                })
+                                                return (
+                                                    <tr
+                                                        key={tx.id || idx}
+                                                        className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                                                    >
+                                                        <td className="px-3 py-3 text-sm text-slate-700">
+                                                            {dayjs(tx.date).format('MMM D, YYYY')}
+                                                        </td>
+                                                        <td className="px-3 py-3">
+                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isIn ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                                                                }`}>
+                                                                {isIn ? 'IN' : 'OUT'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-slate-600">
+                                                            {tx.category || '-'}
+                                                        </td>
+                                                        <td className="px-3 py-3 text-sm text-slate-700">
+                                                            {tx.description || '-'}
+                                                        </td>
+                                                        <td className={`px-3 py-3 text-sm font-semibold text-right ${isIn ? 'text-emerald-600' : 'text-rose-600'
+                                                            }`}>
+                                                            {isIn ? '+' : '-'}৳{fmt(amt)}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                                return (
-                                    <div
-                                        key={date}
-                                        className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:border-indigo-400 hover:shadow-md transition-all"
-                                    >
-                                        <div className="text-sm text-slate-600 font-semibold mb-2">{dayjs(date).format('YYYY-MM-DD')}</div>
-                                        <div className="text-xs text-slate-500 mb-2">{dayTransactions.length} transaction{dayTransactions.length > 1 ? 's' : ''}</div>
+                                {/* Mobile Card View */}
+                                <div className="md:hidden space-y-3">
+                                    {selectedShipment.transactions.map((tx: any, idx: number) => {
+                                        const amt = typeof tx.amount === 'string' ? parseFloat(tx.amount) : Number(tx.amount)
+                                        const isIn = tx.type === 'IN'
 
-                                        <div className="flex items-center justify-between text-sm mb-0.5">
-                                            <div className="text-emerald-600">In:</div>
-                                            <div className="text-emerald-700 font-medium">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-                                                    +{fmt(dayIn)}
-                                                </span>
+                                        return (
+                                            <div
+                                                key={tx.id || idx}
+                                                className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div className="text-sm font-medium text-slate-700">
+                                                        {dayjs(tx.date).format('MMM D, YYYY')}
+                                                    </div>
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isIn ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                                                        }`}>
+                                                        {isIn ? 'IN' : 'OUT'}
+                                                    </span>
+                                                </div>
+
+                                                {tx.category && (
+                                                    <div className="text-xs text-slate-500 mb-1">
+                                                        Category: {tx.category}
+                                                    </div>
+                                                )}
+
+                                                {tx.description && (
+                                                    <div className="text-sm text-slate-700 mb-2">
+                                                        {tx.description}
+                                                    </div>
+                                                )}
+
+                                                <div className={`text-base font-bold text-right ${isIn ? 'text-emerald-600' : 'text-rose-600'
+                                                    }`}>
+                                                    {isIn ? '+' : '-'}৳{fmt(amt)}
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between text-sm mb-2">
-                                            <div className="text-rose-600">Out:</div>
-                                            <div className="text-rose-700 font-medium">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-50 text-rose-700">
-                                                    -{fmt(dayOut)}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="border-t pt-2 mt-1">
-                                            <div className="text-base font-bold text-slate-900">৳{fmt(dayIn - dayOut)}</div>
-                                        </div>
-                                    </div>
-                                )
-                            })
+                                        )
+                                    })}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

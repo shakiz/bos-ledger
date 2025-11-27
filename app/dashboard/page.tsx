@@ -70,12 +70,14 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
   let allEntries: any[] = []
   let allSummary: { totalIn: number; totalOut: number; finalBalance: number; daily: any[] } = { totalIn: 0, totalOut: 0, finalBalance: 0, daily: [] }
   try {
-    allEntries = await prisma.ledgerEntry.findMany({ orderBy: { date: 'asc' } })
+    allEntries = await prisma.ledgerEntry.findMany({ orderBy: { date: 'asc' }, include: { shipment: true } })
     allSummary = calculateMonthlySummary(allEntries)
   } catch (err) {
     // fallback if client not regenerated
     // eslint-disable-next-line no-console
     console.warn('Prisma client missing relation for allEntries; falling back.', err)
+    allEntries = await prisma.ledgerEntry.findMany({ orderBy: { date: 'asc' } })
+    allSummary = calculateMonthlySummary(allEntries)
   }
 
   const carryForward = getCarryForwardBalance(allEntries, month)
@@ -98,10 +100,10 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
     }
   })
 
-  // Calculate shipment-wise performance
+  // Calculate shipment-wise performance using ALL entries (not just current month)
   const shipmentMap = new Map<string, { id: string; name: string; invested: number; collected: number; transactions: any[] }>()
 
-  for (const entry of entries as any[]) {
+  for (const entry of allEntries as any[]) {
     if (!entry.shipment) continue
 
     const shipmentId = entry.shipment.id
