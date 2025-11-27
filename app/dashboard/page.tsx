@@ -4,6 +4,7 @@ import AddEntryForm from '@/components/AddEntryForm'
 import TransactionLog from '@/components/TransactionLog'
 import DailySnapshots from '@/components/DailySnapshots'
 import ShipmentPerformance from '@/components/ShipmentPerformance'
+import ViewAllButton from '@/components/ViewAllButton'
 import { prisma } from '@/lib/prisma'
 import { calculateMonthlySummary, getCarryForwardBalance } from '@/lib/ledger'
 import dayjs from 'dayjs'
@@ -146,8 +147,8 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Title Section */}
           <div className="flex-1">
-            <h1 className="text-xl md:text-2xl font-semibold">Shipment Cash Flow Manager</h1>
-            <div className="text-xs md:text-sm text-indigo-100 mt-1">Shipments and cash flow overview</div>
+            <h1 className="text-xl md:text-2xl font-semibold">Shipment Cash Flow</h1>
+            <div className="text-xs md:text-sm text-indigo-100 mt-1">Financial Overview</div>
           </div>
 
           {/* Balance and Logout Section */}
@@ -165,10 +166,11 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       <div className="mb-6">
         <div className="card p-4">
           <div className="flex items-center gap-6 flex-col sm:flex-row">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <div>
                 <MonthSelector currentMonth={month} />
               </div>
+              <ViewAllButton month={month} />
               <div className="hidden sm:block h-10 border-l border-gray-200" />
             </div>
 
@@ -206,16 +208,9 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         }))} limit={5} showSeeAll={true} />
       </div>
 
-      {/* Add Transaction form below the month/carry forward section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium mb-2">Add Transaction</h3>
-        <AddEntryForm />
-      </div>
-
       {/* Detailed transaction log below the summary */}
       <div className="mt-6">
         <div className="card">
-          <h3 className="text-lg font-semibold mb-4">Detailed Transaction Log</h3>
           <TransactionLog entries={entriesWithRunning} />
         </div>
       </div>

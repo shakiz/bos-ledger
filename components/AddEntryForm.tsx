@@ -21,7 +21,12 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) {
+interface AddEntryFormProps {
+  defaultDate?: string
+  onSuccess?: () => void
+}
+
+export default function AddEntryForm({ defaultDate, onSuccess }: AddEntryFormProps) {
   const router = useRouter()
 
   const {
@@ -99,6 +104,11 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
         shipmentId: "",
       })
       router.refresh()
+
+      // Call onSuccess callback if provided (for modal close)
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (err) {
       console.error(err)
     }
@@ -219,9 +229,9 @@ export default function AddEntryForm({ defaultDate }: { defaultDate?: string }) 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 rounded-lg bg-indigo-600 text-white text-lg font-medium hover:bg-indigo-700 transition shadow-sm"
+          className="w-full py-3 rounded-lg bg-indigo-600 text-white text-lg font-medium hover:bg-indigo-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Add Transaction
+          {isSubmitting ? 'Adding...' : 'Add Transaction'}
         </button>
 
       </div>
