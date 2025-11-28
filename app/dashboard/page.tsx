@@ -166,7 +166,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       <div className="mb-6">
         <div className="card p-4">
           <div className="flex items-center gap-6 flex-col sm:flex-row">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
               <div>
                 <MonthSelector currentMonth={month} />
               </div>
@@ -174,13 +174,13 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
               <div className="hidden sm:block h-10 border-l border-gray-200" />
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="text-sm text-gray-600">
-                  <div className="font-medium">Carry Forward</div>
-                  <div className="text-lg font-bold text-[#1D546C]">৳{carryForward.toFixed(2)}</div>
+                <div className="text-sm text-gray-600 w-full sm:w-auto">
+                  <div className="font-medium text-xs sm:text-sm">Carry Forward</div>
+                  <div className="text-base sm:text-lg font-bold text-[#1D546C] break-all">৳{carryForward.toFixed(2)}</div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <SummaryCards
                     totalIn={summary.totalIn}
                     totalOut={summary.totalOut}

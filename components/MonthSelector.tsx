@@ -1,11 +1,12 @@
 "use client"
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import dayjs from 'dayjs'
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
 
 export default function MonthSelector({ currentMonth }: { currentMonth?: string }) {
   const router = useRouter()
+  const pathname = usePathname()
   const sp = useSearchParams()
   const month = currentMonth ?? sp?.get('month') ?? dayjs().format('YYYY-MM')
   const [isPending, startTransition] = useTransition()
@@ -15,7 +16,8 @@ export default function MonthSelector({ currentMonth }: { currentMonth?: string 
     const next = dayjs(month + '-01').add(delta, 'month').format('YYYY-MM')
     setIsNavigating(true)
     startTransition(() => {
-      router.push(`/dashboard?month=${next}`)
+      // Stay on the current page, just change the month parameter
+      router.push(`${pathname}?month=${next}`)
     })
     // Reset after a short delay to handle edge cases
     setTimeout(() => setIsNavigating(false), 1000)
