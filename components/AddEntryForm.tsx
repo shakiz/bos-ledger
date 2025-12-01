@@ -56,15 +56,14 @@ export default function AddEntryForm({ defaultDate, onSuccess }: AddEntryFormPro
   const [openShipmentModal, setOpenShipmentModal] = React.useState(false)
   const [openCategoryModal, setOpenCategoryModal] = React.useState(false)
 
-  // Load categories
+  // Load all categories from database
   React.useEffect(() => {
     let active = true
-    fetch(`/api/ledger?month=${new Date().toISOString().slice(0, 7)}`)
-      .then(r => r.json()).then(data => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(data => {
         if (!active) return
-        const entries = (data?.entries ?? []) as any[]
-        const cats = Array.from(new Set(entries.map((e: any) => (e.category ?? '').toString()).filter(Boolean))) as string[]
-        setCategories(cats)
+        setCategories(data?.categories ?? [])
       })
       .catch(() => { })
     return () => {
