@@ -24,10 +24,8 @@ export default function TransactionLog({ entries }: { entries: any[] }) {
     }
   }
 
-  if (!entries || entries.length === 0) return <div className="text-sm text-gray-500">No transactions yet.</div>
-
-  // Filter for selected date's transactions
-  const selectedEntries = entries.filter(e => {
+  // Filter for selected date's transactions (handle empty entries array)
+  const selectedEntries = (entries || []).filter(e => {
     const entryDate = dayjs(e.date).format('YYYY-MM-DD')
     return entryDate === selectedDate
   })
